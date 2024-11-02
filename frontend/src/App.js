@@ -8,6 +8,7 @@ import {
 import Users from "./users/pages/Users";
 import NewPlace from "./places/pages/NewPlace";
 import UserPlaces from "./places/pages/UserPlaces";
+import UpdatePlace from "./places/pages/UpdatePlace";
 import MainNavigation from "./shared/components/Navigation/MainNavigation";
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
               element={<UserPlaces />}
             ></Route>
             <Route path="/places/new" exact element={<NewPlace />}></Route>
+            <Route path="/places/:placeId" element={<UpdatePlace />}></Route>
             <Route path="*" element={<Navigate to="/" />}></Route>
           </Routes>
         </main>
