@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useCallback } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -11,28 +11,51 @@ import UserPlaces from "./places/pages/UserPlaces";
 import UpdatePlace from "./places/pages/UpdatePlace";
 import Auth from "./users/pages/Auth";
 import MainNavigation from "./shared/components/Navigation/MainNavigation";
+import { AuthContext } from "./shared/context/auth-context";
 
 function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const login = useCallback(() => {
+    setIsLoggedIn(true);
+  }, []);
+
+  const logout = useCallback(() => {
+    setIsLoggedIn(false);
+  }, []);
+
+  let routes;
+
+  if (isLoggedIn) {
+    routes = (
+      <Routes>
+        <Route path="/" exact element={<Users />}></Route>
+        <Route path="/:userId/places" exact element={<UserPlaces />}></Route>
+        <Route path="/places/new" exact element={<NewPlace />}></Route>
+        <Route path="/places/:placeId" element={<UpdatePlace />}></Route>
+        <Route path="*" element={<Navigate to="/" />}></Route>
+      </Routes>
+    );
+  } else {
+    routes = (
+      <Routes>
+        <Route path="/" exact element={<Users />}></Route>
+        <Route path="/:userId/places" exact element={<UserPlaces />}></Route>
+        <Route path="/auth" element={<Auth />}></Route>
+        <Route path="*" element={<Navigate to="/auth" />}></Route>
+      </Routes>
+    );
+  }
+
   return (
-    <>
+    <AuthContext.Provider
+      value={{ isLoggedIn: isLoggedIn, login: login, logout: logout }}
+    >
       <Router>
         <MainNavigation />
-        <main>
-          <Routes>
-            <Route path="/" exact element={<Users />}></Route>
-            <Route
-              path="/:userId/places"
-              exact
-              element={<UserPlaces />}
-            ></Route>
-            <Route path="/places/new" exact element={<NewPlace />}></Route>
-            <Route path="/places/:placeId" element={<UpdatePlace />}></Route>
-            <Route path="/auth" element={<Auth />}></Route>
-            <Route path="*" element={<Navigate to="/" />}></Route>
-          </Routes>
-        </main>
+        <main>{routes}</main>
       </Router>
-    </>
+    </AuthContext.Provider>
   );
 }
 
