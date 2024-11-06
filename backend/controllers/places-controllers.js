@@ -1,41 +1,10 @@
-const uuid = require("uuid").v4;
 const { validationResult } = require("express-validator");
+const mongoose = require("mongoose");
 
 const Place = require("../models/place");
+const User = require("../models/user");
 const HttpError = require("../models/http-error");
 const getCoordsForAddress = require("../util/location");
-
-let DUMMY_PLACES = [
-  {
-    id: "p1",
-    title: "Victoria Memorial",
-    description:
-      "Elegant, domed, white marble museum, opened in 1921, housing displays on the history of Kolkata.",
-    imageUrl:
-      "https://cdn.britannica.com/74/127174-050-4E634E93/Victoria-Memorial-Hall-Kolkata-India-West-Bengal.jpg",
-    address:
-      "Victoria Memorial Hall, 1, Queens Way, Maidan, Kolkata, West Bengal 700071",
-    location: {
-      lat: 22.5450315,
-      lng: 88.3406948,
-    },
-    creator: "u1",
-  },
-  {
-    id: "p2",
-    title: "Baga Beach",
-    description:
-      "Famous beach & recreation area with water sports, eateries, bars, nightspots & a festive atmosphere",
-    imageUrl:
-      "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/18/3e/36/95/baga-sea-beach.jpg?w=800&h=-1&s=1",
-    address: "Calangute, Goa 403519",
-    location: {
-      lat: 15.5567185,
-      lng: 73.7507686,
-    },
-    creator: "u2",
-  },
-];
 
 const getPlaceById = async (req, res, next) => {
   const placeId = req.params.pid;
@@ -113,8 +82,26 @@ const createPlace = async (req, res, next) => {
     creator,
   });
 
+  let user;
   try {
-    await createdPlace.save();
+    user = await User.findById(creator);
+  } catch (err) {
+    const error = new HttpError("Creating place failed, please try again", 500);
+    return next(error);
+  }
+
+  if (!user) {
+    const error = new HttpError("Could not find user for provided id", 404);
+    return next(error);
+  }
+
+  try {
+    const sess = await mongoose.startSession();
+    sess.startTransaction();
+    await createdPlace.save({ session: sess });
+    user.places.push(createdPlace);
+    await user.save({ session: sess });
+    await sess.commitTransaction();
   } catch (err) {
     const error = new HttpError(
       "Creating place failed, please try again.",
@@ -129,7 +116,9 @@ const createPlace = async (req, res, next) => {
 const updatePlace = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    throw new HttpError("Invalid inputs passed, please check your data.", 422);
+    return next(
+      new HttpError("Invalid inputs passed, please check your data.", 422)
+    );
   }
 
   const { title, description } = req.body;
@@ -167,7 +156,7 @@ const deletePlace = async (req, res, next) => {
 
   let place;
   try {
-    place = await Place.findById(placeId);
+    place = await Place.findById(placeId).populate("creator");
   } catch (err) {
     const error = new HttpError(
       "Something went wrong, could not delete place.",
@@ -176,8 +165,17 @@ const deletePlace = async (req, res, next) => {
     return next(error);
   }
 
+  if (!place) {
+    const error = new HttpError("Could not find place for this id.", 404);
+    return next(error);
+  }
   try {
-    await place.deleteOne();
+    const sess = await mongoose.startSession();
+    sess.startTransaction();
+    await place.deleteOne({ session: sess });
+    place.creator.places.pull(place);
+    await place.creator.save({ session: sess });
+    await sess.commitTransaction();
   } catch (err) {
     const error = new HttpError(
       "Something went wrong, could not delete place.",
