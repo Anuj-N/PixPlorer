@@ -183,12 +183,16 @@ const deletePlace = async (req, res, next) => {
   const imagePath = place.image;
 
   try {
-    const sess = await mongoose.startSession();
-    sess.startTransaction();
-    await place.deleteOne({ session: sess });
-    place.creator.places.pull(place);
-    await place.creator.save({ session: sess });
-    await sess.commitTransaction();
+    // const sess = await mongoose.startSession();
+    // sess.startTransaction();
+    // await place.deleteOne({ session: sess });
+    // place.creator.places.pull(place);
+    // await place.creator.save({ session: sess });
+    // await sess.commitTransaction();
+
+    await place.deleteOne();
+    await place.creator.places.pull(place);
+    await place.creator.save();
   } catch (err) {
     const error = new HttpError(
       "Something went wrong, could not delete place.",
