@@ -14,21 +14,17 @@ const PlaceItem = (props) => {
   const auth = useContext(AuthContext);
   const [showMap, setShowMap] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const openMapHandler = () => setShowMap(true);
-
   const closeMapHandler = () => setShowMap(false);
-
-  const showDeleteWarningHandler = () => {
-    setShowConfirmModal(true);
-  };
-
-  const cancelDeleteHandler = () => {
-    setShowConfirmModal(false);
-  };
+  const showDeleteWarningHandler = () => setShowConfirmModal(true);
+  const cancelDeleteHandler = () => setShowConfirmModal(false);
 
   const confirmDeleteHandler = async () => {
     setShowConfirmModal(false);
+    setIsDeleting(true);
+    
     try {
       await sendRequest(
         `${process.env.REACT_APP_BACKEND_URL}/places/${props.id}`,
@@ -36,9 +32,16 @@ const PlaceItem = (props) => {
         null,
         { Authorization: "Bearer " + auth.token }
       );
+      
       props.onDelete(props.id);
-    } catch (err) {}
+    } catch (err) {
+      setIsDeleting(false);
+    }
   };
+
+  if (isDeleting) {
+    return null;
+  }
 
   return (
     <>
@@ -74,10 +77,10 @@ const PlaceItem = (props) => {
         footerClass="place-item__modal-actions"
         footer={
           <React.Fragment>
-            <Button danger onClick={confirmDeleteHandler}>
-              Delete
+            <Button danger onClick={confirmDeleteHandler} disabled={isLoading}>
+              {isLoading ? "Deleting..." : "Delete"}
             </Button>
-            <Button inverse onClick={cancelDeleteHandler}>
+            <Button inverse onClick={cancelDeleteHandler} disabled={isLoading}>
               Cancel
             </Button>
           </React.Fragment>
@@ -109,7 +112,6 @@ const PlaceItem = (props) => {
             {auth.userId === props.creatorId && (
               <Button to={`/places/${props.id}`}>Edit</Button>
             )}
-
             {auth.userId === props.creatorId && (
               <Button danger onClick={showDeleteWarningHandler}>
                 Delete
