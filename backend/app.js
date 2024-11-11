@@ -1,6 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-require('dotenv').config();
+require("dotenv").config();
 
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -14,12 +14,12 @@ const app = express();
 
 app.use(bodyParser.json());
 
-const uploadsDir = path.join(__dirname, 'uploads', 'images');
+const uploadsDir = path.join(__dirname, "uploads", "images");
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-app.use("/uploads/images", express.static(__dirname + "/uploads/images"));
+app.use("/uploads/images", express.static(path.join("uploads", "images")));
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -43,7 +43,7 @@ app.use((req, res, next) => {
 app.use((error, req, res, next) => {
   if (req.file) {
     fs.unlink(req.file.path, (err) => {
-      console.log('File deletion error:', err);
+      console.log("File deletion error:", err);
     });
   }
   if (res.headerSent) {
