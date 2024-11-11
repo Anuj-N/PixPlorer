@@ -1,5 +1,4 @@
 import React, { useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
 
 import Card from "../../shared/components/UIElements/Card";
 import Button from "../../shared/components/FormElements/Button";
@@ -13,26 +12,14 @@ import "./PlaceItem.css";
 const PlaceItem = (props) => {
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
   const auth = useContext(AuthContext);
-  const [showMap, setShowMap] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const navigate = useNavigate();
-  const openMapHandler = () => setShowMap(true);
-  const closeMapHandler = async () => {
-    setShowMap(false);
-    try {
-      await sendRequest(
-        `${process.env.REACT_APP_BACKEND_URL}/places/users/${auth.userId}`,
-        "GET",
-        null,
-        { Authorization: "Bearer " + auth.token }
-      );
 
-      navigate(`/places/users/${auth.userId}`);
-    } catch (err) {
-      console.error("Failed to navigate to user places:", err);
-    }
+  const openMapHandler = () => {
+    const mapUrl = `https://maps.google.com/maps?q=${props.coordinates.lat},${props.coordinates.lng}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+    window.open(mapUrl, "_blank");
   };
+
   const showDeleteWarningHandler = () => setShowConfirmModal(true);
   const cancelDeleteHandler = () => setShowConfirmModal(false);
 
@@ -61,30 +48,6 @@ const PlaceItem = (props) => {
   return (
     <>
       <ErrorModal error={error} onClear={clearError} />
-      <Modal
-        show={showMap}
-        onCancel={closeMapHandler}
-        header={props.address}
-        contentClass="place-item__modal-content"
-        footerClass="place-item__modal-actions"
-        footer={<Button onClick={closeMapHandler}>Close</Button>}
-      >
-        <div className="map-container" style={{ padding: "5px" }}>
-          <iframe
-            title="map"
-            width="100%"
-            height="100%"
-            style={{ border: "0" }}
-            src={
-              "https://maps.google.com/maps?q=" +
-              props.coordinates.lat.toString() +
-              "," +
-              props.coordinates.lng.toString() +
-              "&t=&z=15&ie=UTF8&iwloc=&output=embed"
-            }
-          ></iframe>
-        </div>
-      </Modal>
       <Modal
         show={showConfirmModal}
         onCancel={cancelDeleteHandler}
