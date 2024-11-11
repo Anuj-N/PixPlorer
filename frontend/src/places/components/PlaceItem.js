@@ -1,4 +1,5 @@
 import React, { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 
 import Card from "../../shared/components/UIElements/Card";
 import Button from "../../shared/components/FormElements/Button";
@@ -15,24 +16,38 @@ const PlaceItem = (props) => {
   const [showMap, setShowMap] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-
+  const navigate = useNavigate();
   const openMapHandler = () => setShowMap(true);
-  const closeMapHandler = () => setShowMap(false);
+  const closeMapHandler = async () => {
+    setShowMap(false);
+    try {
+      await sendRequest(
+        `${process.env.REACT_APP_BACKEND_URL}/places/users/${auth.userId}`,
+        "GET",
+        null,
+        { Authorization: "Bearer " + auth.token }
+      );
+
+      navigate(`/places/users/${auth.userId}`);
+    } catch (err) {
+      console.error("Failed to navigate to user places:", err);
+    }
+  };
   const showDeleteWarningHandler = () => setShowConfirmModal(true);
   const cancelDeleteHandler = () => setShowConfirmModal(false);
 
   const confirmDeleteHandler = async () => {
     setShowConfirmModal(false);
     setIsDeleting(true);
-    
+
     try {
       await sendRequest(
-        `${process.env.REACT_APP_BACKEND_URL}/places/${props.id}`,
+        `${process.env.REACT_APP_BACKEND_URL}/places/user/${props.id}`,
         "DELETE",
         null,
         { Authorization: "Bearer " + auth.token }
       );
-      
+
       props.onDelete(props.id);
     } catch (err) {
       setIsDeleting(false);
