@@ -29,10 +29,17 @@ const signup = async (req, res, next) => {
 
   const { name, email, password } = req.body;
 
+  console.log("Signup attempt:", { name, email, file: req.file });
+
+  if (!req.file) {
+    return next(new HttpError("No image provided.", 422));
+  }
+
   let existingUser;
   try {
     existingUser = await User.findOne({ email: email });
   } catch (err) {
+    console.error("Database error during user lookup:", err);
     const error = new HttpError(
       "Signing up failed, please try again later.",
       500
@@ -52,6 +59,7 @@ const signup = async (req, res, next) => {
   try {
     hashedPassword = await bcrypt.hash(password, 12);
   } catch (err) {
+    console.error("Password hashing error:", err);
     const error = new HttpError(
       "Could not create user, please try again.",
       500
@@ -59,10 +67,14 @@ const signup = async (req, res, next) => {
     return next(error);
   }
 
+  const imagePath = req.file
+    ? `${process.env.BACKEND_URL}/${req.file.path}`
+    : null;
+
   const createdUser = new User({
     name,
     email,
-    image: req.file.path,
+    image: imagePath,
     password: hashedPassword,
     places: [],
   });
@@ -70,6 +82,7 @@ const signup = async (req, res, next) => {
   try {
     await createdUser.save();
   } catch (err) {
+    console.error("Database error during user creation:", err);
     const error = new HttpError(
       "Signing up failed, please try again later.",
       500
@@ -85,6 +98,7 @@ const signup = async (req, res, next) => {
       { expiresIn: "1h" }
     );
   } catch (err) {
+    console.error("JWT signing error:", err);
     const error = new HttpError(
       "Signing up failed, please try again later.",
       500
@@ -92,9 +106,11 @@ const signup = async (req, res, next) => {
     return next(error);
   }
 
-  res
-    .status(201)
-    .json({ userId: createdUser.id, email: createdUser.email, token: token });
+  res.status(201).json({
+    userId: createdUser.id,
+    email: createdUser.email,
+    token: token,
+  });
 };
 
 const login = async (req, res, next) => {
