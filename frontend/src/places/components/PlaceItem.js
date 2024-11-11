@@ -29,7 +29,7 @@ const PlaceItem = (props) => {
 
     try {
       await sendRequest(
-        `${process.env.REACT_APP_BACKEND_URL}/places/user/${props.id}`,
+        `${process.env.REACT_APP_BACKEND_URL}/places/${props.id}`,
         "DELETE",
         null,
         { Authorization: "Bearer " + auth.token }
@@ -54,14 +54,14 @@ const PlaceItem = (props) => {
         header="Are you sure?"
         footerClass="place-item__modal-actions"
         footer={
-          <React.Fragment>
+          <>
             <Button danger onClick={confirmDeleteHandler} disabled={isLoading}>
               {isLoading ? "Deleting..." : "Delete"}
             </Button>
             <Button inverse onClick={cancelDeleteHandler} disabled={isLoading}>
               Cancel
             </Button>
-          </React.Fragment>
+          </>
         }
       >
         <p>
