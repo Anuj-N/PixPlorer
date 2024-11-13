@@ -78,7 +78,7 @@ const createPlace = async (req, res, next) => {
     description,
     address,
     location: coordinates,
-    image: req.file.path,
+    image: req.file.buffer,
     creator: req.userData.userId,
   });
 
@@ -180,7 +180,7 @@ const deletePlace = async (req, res, next) => {
     return next(error);
   }
 
-  const imagePath = place.image;
+  // const imagePath = place.image;
 
   try {
     // const sess = await mongoose.startSession();
@@ -201,9 +201,9 @@ const deletePlace = async (req, res, next) => {
     return next(error);
   }
 
-  fs.unlink(imagePath, (err) => {
-    console.log(err);
-  });
+  // fs.unlink(imagePath, (err) => {
+  //   console.log(err);
+  // });
 
   res.status(200).json({ message: "Deleted place." });
 };

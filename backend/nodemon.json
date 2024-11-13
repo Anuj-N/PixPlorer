@@ -4,6 +4,6 @@
     "DB_PASSWORD": "Bigbottle99",
     "DB_NAME": "PixPlorer",
     "JWT_KEY": "secret_private_key_dont_share",
-    "BACKEND_URL": "/PixPlorer/backend"
+    "BACKEND_URL": "http://localhost:5001"
   }
 }

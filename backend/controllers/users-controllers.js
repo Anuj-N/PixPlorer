@@ -41,7 +41,7 @@ const signup = async (req, res, next) => {
   } catch (err) {
     console.error("Database error during user lookup:", err);
     const error = new HttpError(
-      "Signing up failed, please try again later.",
+      "Signing up failed, please try again later. Database error during user lookup",
       500
     );
     return next(error);
@@ -67,12 +67,12 @@ const signup = async (req, res, next) => {
     return next(error);
   }
 
-  const imagePath = req.file ? `uploads/images/${req.file.filename}` : null;
+  // const imagePath = req.file ? `uploads/images/${req.file.filename}` : null;
 
   const createdUser = new User({
     name,
     email,
-    image: imagePath,
+    image: req.file.buffer,
     password: hashedPassword,
     places: [],
   });
@@ -82,7 +82,7 @@ const signup = async (req, res, next) => {
   } catch (err) {
     console.error("Database error during user creation:", err);
     const error = new HttpError(
-      "Signing up failed, please try again later.",
+      "Signing up failed, please try again later. Database error during user creation:",
       500
     );
     return next(error);
@@ -98,7 +98,7 @@ const signup = async (req, res, next) => {
   } catch (err) {
     console.error("JWT signing error:", err);
     const error = new HttpError(
-      "Signing up failed, please try again later.",
+      "Signing up failed, please try again later. JWT signing error",
       500
     );
     return next(error);
@@ -108,7 +108,7 @@ const signup = async (req, res, next) => {
     userId: createdUser.id,
     email: createdUser.email,
     token: token,
-    image: imagePath,
+    // image: imagePath,
   });
 };
 
