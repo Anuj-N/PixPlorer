@@ -45,6 +45,12 @@ const PlaceItem = (props) => {
     return null;
   }
 
+  let imageUrl;
+  if (props.image) {
+    // Convert the base64 string to a data URL
+    imageUrl = `data:image/jpeg;base64,${props.image}`;
+  }
+
   return (
     <>
       <ErrorModal error={error} onClear={clearError} />
@@ -73,10 +79,7 @@ const PlaceItem = (props) => {
         <Card className="place-item__content">
           {isLoading && <LoadingSpinner asOverlay />}
           <div className="place-item__image">
-            <img
-              src={`${process.env.REACT_APP_ASSET_URL}/${props.image}`}
-              alt={props.title}
-            />
+            <img src={imageUrl} alt={props.title} />
           </div>
           <div className="place-item__info">
             <h2>{props.title}</h2>
