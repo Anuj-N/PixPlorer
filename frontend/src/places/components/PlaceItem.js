@@ -76,14 +76,6 @@ const PlaceItem = (props) => {
               Cancel
             </Button>
           </>
-          // <>
-          //   <Button danger onClick={confirmDeleteHandler} disabled={isLoading}>
-          //     {isLoading ? "Deleting..." : "Delete"}
-          //   </Button>
-          //   <Button inverse onClick={cancelDeleteHandler} disabled={isLoading}>
-          //     Cancel
-          //   </Button>
-          // </>
         }
       >
         <p>

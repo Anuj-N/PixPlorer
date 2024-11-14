@@ -1,11 +1,15 @@
-import React from 'react';
+import React from "react";
+import Card from "./Card";
 
-import './LoadingSpinner.css';
+import "./LoadingSpinner.css";
 
-const LoadingSpinner = props => {
+const LoadingSpinner = (props) => {
   return (
-    <div className={`${props.asOverlay && 'loading-spinner__overlay'}`}>
-      <div className="lds-dual-ring"></div>
+    <div className={`${props.asOverlay && "loading-spinner__overlay"}`}>
+      <Card>
+        <h4>Please wait, initial loading may take a minute</h4>
+        <div className="lds-dual-ring"></div>
+      </Card>
     </div>
   );
 };
