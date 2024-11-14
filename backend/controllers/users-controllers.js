@@ -67,8 +67,6 @@ const signup = async (req, res, next) => {
     return next(error);
   }
 
-  // const imagePath = req.file ? `uploads/images/${req.file.filename}` : null;
-
   const createdUser = new User({
     name,
     email,
@@ -108,7 +106,6 @@ const signup = async (req, res, next) => {
     userId: createdUser.id,
     email: createdUser.email,
     token: token,
-    // image: imagePath,
   });
 };
 
