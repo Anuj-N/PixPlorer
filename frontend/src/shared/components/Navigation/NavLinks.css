@@ -19,6 +19,7 @@
   color: #292929;
   text-decoration: none;
   padding: 0.5rem;
+  border-radius: 6px;
 }
 
 .nav-links a:hover,
@@ -36,6 +37,7 @@
   background: transparent;
   padding: 0.5rem;
   font: inherit;
+  border-radius: 6px;
 }
 
 .nav-links button:focus {
