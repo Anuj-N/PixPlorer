@@ -64,10 +64,26 @@ const PlaceItem = (props) => {
             <Button danger onClick={confirmDeleteHandler} disabled={isLoading}>
               {isLoading ? "Deleting..." : "Delete"}
             </Button>
-            <Button inverse onClick={cancelDeleteHandler} disabled={isLoading}>
+            <Button
+              inverse
+              onClick={(e) => {
+                e.preventDefault();
+                cancelDeleteHandler();
+              }}
+              disabled={isLoading}
+              type="button" // Explicitly set type to prevent form submission
+            >
               Cancel
             </Button>
           </>
+          // <>
+          //   <Button danger onClick={confirmDeleteHandler} disabled={isLoading}>
+          //     {isLoading ? "Deleting..." : "Delete"}
+          //   </Button>
+          //   <Button inverse onClick={cancelDeleteHandler} disabled={isLoading}>
+          //     Cancel
+          //   </Button>
+          // </>
         }
       >
         <p>
